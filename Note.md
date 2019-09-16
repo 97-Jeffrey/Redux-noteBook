@@ -174,4 +174,73 @@ function reducer（state, action） {
 
 ### 3.8 store.subscribe()
 
-Store
+Store 允许使用 store.subscribe 方法设置监听，一旦 State 发生变化，就自动执行这个函数。
+
+```reactjs
+import { createStore } from 'redux';
+const store = createStore(reducer);
+
+store.subscribe(listener);
+```
+
+显然，只要把View 更新函数（对于React 的项目，就是组建的render 的方法 或 setState 方法） 放入 listen,就会实现View 的自动渲染。
+
+store.subscribe 方法返回一个函数，调用这个函数就可以解除监听
+
+```reactjs
+let unsubscribe = store.subscribe(() =>
+console.log(store.getState());
+)
+
+unsubscribe();
+```
+
+## 四. Store 的实现
+
+上一节介绍了Redux 涉及的基本概念， 可以发现Store提供了三个方案。
+
+```reactjs
+- store.getState()
+- store.dispatch()
+- store.subscribe()
+```
+
+```react.js
+import { createStore } from 'redux';
+let { subscribe, dispatch, getState} = createStore(reducer);
+```
+
+createStore 方法可以接受第二个参数， 表示state的初始状态，通常是服务器给出的。
+
+上面的代码中，windows.STATE_FROM_SERVER 就是整个应用的状态初始值，如果一但提供，就会覆盖 Reducer 的默认初始值
+
+
+下面是 createStore 方法的一个简单地实现，可以了解一下Store 是怎么生成的
+
+```reactjs
+const createStore = (reducer) => {
+  let state;
+  let listeners = [];
+
+  const getState = () => state;
+
+  const dispatch = (action) => {
+    state = reducer(state, action);
+    listeners.forEach(listener => listener());
+  };
+
+  const subscribe = (listener) => {
+    listeners.push(listener);
+    return () => {
+      listeners = listeners.filter(l => l !== listener);
+    }
+  };
+
+  dispatch({});
+
+  return { getState, dispatch, subscribe };
+};
+```
+
+## 五. Reducer 的拆分
+Reducer 的函数负责生成State, 由于整个应用只有一个State 的对象，包含所有数据，对于大型的应用来说，这个State是非常的庞大， Reducer 函数也非常的庞大。

@@ -97,3 +97,81 @@ store.dispatch(addTodo("Learn Redux"));
 
 
 ### 3.6 Reducer
+
+State 收到 Action 之后 会 update State， 这样View 才会有变化。 State 的变化 叫做Reducer
+
+Reducer 是一个函数， 它接受Action 和当前的State 作为参数，返回一个新的State
+
+```react.js
+const reducer = function (state, action) {
+  // ...
+  return new_state;
+}
+```
+
+整个应用的厨师状态，可以作为State的初始值，下面是一个实际的例子
+
+```react.js
+const defaultState = 0;
+const reducer = (state = defualtState, action) => {
+  switch(action.type) {
+    case 'ADD':
+       return state + action.payload;
+    default:
+       return state;
+  }
+};
+
+const state = reducer(1, {
+  type: 'ADD',
+  payload: 2
+})
+```
+
+在 createStore 接受 Reducer 作为 参数，生成一个新的Store. 以后每当 store.dispatch 发送过来一个新的Action, 就会自动调用Reducer, 得到一个新的State
+
+为什么叫做Reducer？ 因为他可以作为数组的reduce 的方法参数，可以看一下的一个例子
+
+```react.js
+const actions = [
+  {type: 'ADD', payload: 0},
+  {type: 'ADD', payload: 1},
+  {type: 'ADD', payload: 2}
+];
+
+const total = actions.reduce(reducer, 0); //3
+```
+
+上面的代码中， action 有三个Action, 分别是0，1，2. reduce 方法接受Reducer 函数作为参数，就可以直接得到最终的状态3.
+
+### 3.7 纯函数
+Reducer 函数最重要的特征是，他是一个纯函数。也就是说， 只要是同样的输入， 比兴得到同样的输出。
+纯函数是函数式编程的改变。
+
+```
+- 不得改写参数
+- 不能调用系统I/O 的API
+- 不能调用Date.now() 或者 Math.random（）等不纯的方法， 因为每次回得到不一样的结果。
+```
+
+由于Reducer 是纯函数， 可以办证用眼的State, 必定得到同样的View, SO Reducer 不能改变State
+
+```react.js
+function reducer(state, action) {
+  return Object.assign({}, state,{ thingToChange });
+  //或者
+  return {...state, ...newState};
+}
+
+//State 是一个数组
+function reducer（state, action） {
+  return [...state，newItem]；
+}
+```
+
+把State 的对象编程只读是没有办法的，如果要得到新的State, 唯一办法就是生成新的对象，这样的好处就是，任何时候，和某个View 对应的State 总是一个不变的对象。
+
+
+### 3.8 store.subscribe()
+
+Store

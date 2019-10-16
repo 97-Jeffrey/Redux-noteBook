@@ -244,3 +244,37 @@ const createStore = (reducer) => {
 
 ## 五. Reducer 的拆分
 Reducer 的函数负责生成State, 由于整个应用只有一个State 的对象，包含所有数据，对于大型的应用来说，这个State是非常的庞大， Reducer 函数也非常的庞大。
+
+此部分暂时忽略，后面会补上理解
+
+
+## 六. 工作流程
+
+![reactWorkFlow](reactWorkFlow.png)
+
+首先，用户发出Action
+
+```react
+store.dispatch(action);
+```
+
+然后，Store自动调用Reducer，并且转入两个参数： 当前的State 和收到的Action。Reducer 会返回新的State
+
+```react
+let nextState = todoApp(previousState,action);
+```
+
+State 一旦有变化, Store 就会调用监听函数
+
+```react
+store.subscribe(listener)
+```
+
+listener 可以通过 store.getState() 得到当前的状态。如果使用的是React,这时可以出发重新渲染View
+
+```react
+function listerner() {
+  let newState = store.getState();
+  component.setState(newState);
+}
+```
